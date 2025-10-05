@@ -1,0 +1,9 @@
+{
+  "name": "aurora-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "install-deps": "cd frontend && npm install && cd ../backend && npm install"
+  }
+}
