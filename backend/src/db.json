@@ -15,7 +15,7 @@
       "year": 2025,
       "price": 75000,
       "description": "Электрический суперкар с запасом хода 500 км и ускорением до 100 км/ч за 3.2 сек.",
-      "image": "/uploads/car1.png"
+      "image": "{host}/uploads/car1.png"
     },
     {
       "id": "2",
@@ -23,7 +23,7 @@
       "year": 2024,
       "price": 68000,
       "description": "Комфортный седан с автопилотом и премиальной аудиосистемой.",
-      "image": "/uploads/car2.png"
+      "image": "{host}/uploads/car2.png"
     },
     {
       "id": "3",
@@ -31,7 +31,7 @@
       "year": 2025,
       "price": 82000,
       "description": "Полностью электрический внедорожник с 4WD и современной системой безопасности.",
-      "image": "/uploads/car3.png"
+      "image": "{host}/uploads/car3.png"
     },
     {
       "id": "4",
@@ -39,7 +39,7 @@
       "year": 2023,
       "price": 59000,
       "description": "Легкий спортивный купе с отличной управляемостью и дизайном.",
-      "image": "/uploads/car4.png"
+      "image": "{host}/uploads/car4.png"
     }
   ]
 }
