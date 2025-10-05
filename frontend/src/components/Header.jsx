@@ -40,7 +40,7 @@ export default function Header() {
           textDecoration: "none",
         }}
       >
-        Aurora<span style={{ color: "white" }}>Motors</span>
+        Kybrak<span style={{ color: "white" }}>Motors</span>
       </Link>
 
       {/* Бургер для мобильных */}
