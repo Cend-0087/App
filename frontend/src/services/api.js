@@ -1,10 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-// Для локальной разработки используем localhost, для продакшена — относительный путь
-const API_BASE = process.env.REACT_APP_API_URL || '';
+// Определяем базовый URL в зависимости от среды
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://app-z8kj.onrender.com/api";
 
 const api = axios.create({
-  baseURL: API_BASE
+  baseURL: API_BASE,
 });
 
 export default api;
