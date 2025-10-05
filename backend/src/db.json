@@ -8,5 +8,38 @@
       "role": "user"
     }
   ],
-  "cars": []
+  "cars": [
+        {
+      "id": "1",
+      "model": "Aurora Lightning X",
+      "year": 2025,
+      "price": 75000,
+      "description": "Электрический суперкар с запасом хода 500 км и ускорением до 100 км/ч за 3.2 сек.",
+      "image": "/uploads/lightningx.jpg"
+    },
+    {
+      "id": "2",
+      "model": "Aurora Falcon S",
+      "year": 2024,
+      "price": 68000,
+      "description": "Комфортный седан с автопилотом и премиальной аудиосистемой.",
+      "image": "/uploads/falcons.jpg"
+    },
+    {
+      "id": "3",
+      "model": "Aurora Storm EV",
+      "year": 2025,
+      "price": 82000,
+      "description": "Полностью электрический внедорожник с 4WD и современной системой безопасности.",
+      "image": "/uploads/storm.jpg"
+    },
+    {
+      "id": "4",
+      "model": "Aurora Breeze Coupe",
+      "year": 2023,
+      "price": 59000,
+      "description": "Легкий спортивный купе с отличной управляемостью и дизайном.",
+      "image": "/uploads/breeze.jpg"
+    }
+  ]
 }

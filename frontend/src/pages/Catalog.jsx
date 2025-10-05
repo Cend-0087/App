@@ -19,3 +19,13 @@ export default function Catalog(){
     </div>
   </div>)
 }
+
+{cars.map(c => (
+  <div key={c.id} style={{border:'1px solid #ddd', padding:12, borderRadius:8}}>
+    {c.image && <img src={c.image} alt={c.model} style={{width:'100%', borderRadius:8, marginBottom:8}} />}
+    <h3>{c.model}</h3>
+    <p>{c.year} — €{c.price}</p>
+    <p>{c.description}</p>
+    <Link to={'/cars/'+c.id}>Подробнее</Link>
+  </div>
+))}
