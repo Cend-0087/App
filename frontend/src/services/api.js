@@ -1,8 +1,10 @@
 import axios from 'axios';
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api' });
-api.interceptors.request.use(cfg=>{
-  const token = localStorage.getItem('token');
-  if(token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
+
+// Для локальной разработки используем localhost, для продакшена — относительный путь
+const API_BASE = process.env.REACT_APP_API_URL || '';
+
+const api = axios.create({
+  baseURL: API_BASE
 });
+
 export default api;

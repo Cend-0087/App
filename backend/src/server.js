@@ -13,7 +13,9 @@ const uploads = require('./routes/uploads');
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+
+// Раздача загруженных файлов
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API маршруты
 app.use('/api/auth', authRoutes);
@@ -21,11 +23,13 @@ app.use('/api/cars', carRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploads);
 
-// Раздаём фронтенд (Vite build)
+// Путь к фронтенду
 const frontendPath = path.join(__dirname, '../../frontend/dist');
+
+// Раздаём фронтенд (Vite build)
 app.use(express.static(frontendPath));
 
-// Для всех остальных GET запросов отдаем index.html (React SPA)
+// Все остальные GET-запросы отдаем index.html для SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
