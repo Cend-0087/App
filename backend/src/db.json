@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": "6V4XSHXcpqucL7VLpepVL",
+      "name": "Матвей",
+      "email": "radionovmvp@gmail.com",
+      "password_hash": "$2a$08$tP5anENsYoT3CTlR5vnJZuRwNtoxEyIHyoUjcCCDl1qN.peA1bWka",
+      "role": "user"
+    }
+  ],
+  "cars": []
+}
