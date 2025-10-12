@@ -1,8 +1,34 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Home() {
+  const popularCars = [
+    {
+      id: 1,
+      name: 'Kybrak Lightning X',
+      image: '/uploads/car1.png',
+      desc: 'Комфорт и технологии будущего.',
+      price: '48 000',
+      year: 2024,
+    },
+    {
+      id: 2,
+      name: 'Kybrak Falcon S',
+      image: '/uploads/car2.png',
+      desc: 'Мощь и уверенность на любой дороге.',
+      price: '67 000',
+      year: 2025,
+    },
+    {
+      id: 3,
+      name: 'Kybrak Storm EV',
+      image: '/uploads/car3.png',
+      desc: 'Компактность и экономичность.',
+      price: '39 500',
+      year: 2023,
+    },
+  ];
+
   return (
     <div className="home-page" style={{ fontFamily: 'sans-serif', color: '#222' }}>
       {/* Hero секция */}
@@ -20,7 +46,7 @@ export default function Home() {
           color: 'white',
           textShadow: '0 2px 8px rgba(0,0,0,0.6)',
           textAlign: 'center',
-          padding: '0 20px'
+          padding: '0 20px',
         }}
       >
         <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Aurora Motors</h1>
@@ -37,7 +63,7 @@ export default function Home() {
             borderRadius: '30px',
             textDecoration: 'none',
             fontWeight: 'bold',
-            transition: 'background 0.3s'
+            transition: 'background 0.3s',
           }}
           onMouseOver={(e) => (e.target.style.backgroundColor = '#ffe04f')}
           onMouseOut={(e) => (e.target.style.backgroundColor = '#f5c518')}
@@ -62,56 +88,66 @@ export default function Home() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: '20px',
             maxWidth: 1000,
-            margin: '0 auto'
+            margin: '0 auto',
           }}
         >
-          {[
-            {
-              name: 'Aurora S1',
-              img: '/uploads/aurora_s1.jpg',
-              desc: 'Комфорт и технологии будущего.'
-            },
-            {
-              name: 'Aurora X',
-              img: '/uploads/aurora_x.jpg',
-              desc: 'Мощь и уверенность на любой дороге.'
-            },
-            {
-              name: 'Aurora E',
-              img: '/uploads/aurora_e.jpg',
-              desc: 'Компактность и экономичность.'
-            }
-          ].map((car) => (
+          {popularCars.map((car) => (
             <div
-              key={car.name}
+              key={car.id}
               style={{
-                background: '#fff',
-                borderRadius: '16px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                overflow: 'hidden',
+                border: '1px solid #ddd',
+                padding: '12px',
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 transition: 'transform 0.3s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-6px)')}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-5px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
-              <img src={car.img} alt={car.name} style={{ width: '100%', height: 180, objectFit: 'cover' }} />
-              <div style={{ padding: '20px' }}>
-                <h3 style={{ marginBottom: 8 }}>{car.name}</h3>
-                <p style={{ color: '#555', marginBottom: 12 }}>{car.desc}</p>
-                <Link
-                  to="/catalog"
-                  style={{ color: '#f5c518', textDecoration: 'none', fontWeight: 'bold' }}
-                >
-                  Подробнее →
-                </Link>
-              </div>
+              {car.image && (
+                <img
+                  src={car.image}
+                  alt={car.name}
+                  style={{
+                    width: '100%',
+                    height: '160px',
+                    objectFit: 'cover',
+                    borderRadius: '6px',
+                    marginBottom: '12px',
+                  }}
+                />
+              )}
+              <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>{car.name}</h3>
+              <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
+                {car.year} — €{car.price}
+              </p>
+              <p style={{ fontSize: '0.9rem', textAlign: 'center', marginBottom: '12px' }}>
+                {car.desc}
+              </p>
+              <Link
+                to="/catalog"
+                style={{
+                  textDecoration: 'none',
+                  backgroundColor: '#f5c518',
+                  color: '#111',
+                  padding: '8px 16px',
+                  borderRadius: '25px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Подробнее
+              </Link>
             </div>
           ))}
         </div>
       </section>
     </div>
-  )
+  );
 }

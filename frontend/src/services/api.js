@@ -7,6 +7,7 @@ import axios from 'axios';
 // });
 
 // Для деплоя
+// Почему-то теперь картинки щагружаются по жтому адресу лаже на локалке!!!
 
 const api = axios.create({
   baseURL: "https://app-z8kj.onrender.com/api"

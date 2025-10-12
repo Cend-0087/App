@@ -11,7 +11,7 @@
   "cars": [
     {
       "id": "1",
-      "model": "Aurora Lightning X",
+      "model": "Kybrak Lightning X",
       "year": 2025,
       "price": 75000,
       "description": "Электрический суперкар с запасом хода 500 км и ускорением до 100 км/ч за 3.2 сек.",
@@ -19,7 +19,7 @@
     },
     {
       "id": "2",
-      "model": "Aurora Falcon S",
+      "model": "Kybrak Falcon S",
       "year": 2024,
       "price": 68000,
       "description": "Комфортный седан с автопилотом и премиальной аудиосистемой.",
@@ -27,7 +27,7 @@
     },
     {
       "id": "3",
-      "model": "Aurora Storm EV",
+      "model": "Kybrak Storm EV",
       "year": 2025,
       "price": 82000,
       "description": "Полностью электрический внедорожник с 4WD и современной системой безопасности.",
@@ -35,7 +35,7 @@
     },
     {
       "id": "4",
-      "model": "Aurora Breeze Coupe",
+      "model": "Kybrak Storm B",
       "year": 2023,
       "price": 59000,
       "description": "Легкий спортивный купе с отличной управляемостью и дизайном.",
