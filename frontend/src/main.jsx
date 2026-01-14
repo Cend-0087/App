@@ -14,6 +14,16 @@ import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { HelmetProvider } from "react-helmet-async";
+
+
+// title для страниц
+createRoot(document.getElementById("root")).render(
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
+);
+
 
 // 🔹 Компонент для защиты маршрутов
 function ProtectedRoute({ children }) {

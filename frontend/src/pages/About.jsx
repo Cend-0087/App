@@ -3,7 +3,7 @@ import React from "react"
 export default function About() {
   return (
     <div style={pageStyle}>
-      <h1>О компании Aurora Motors</h1>
+      <h1>О компании Kybrak Motors</h1>
       <p>
         Aurora Motors — инновационный производитель автомобилей нового поколения. 
         Мы сочетаем передовые технологии, элегантный дизайн и внимание к экологии, 

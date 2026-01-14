@@ -49,7 +49,7 @@ export default function Home() {
           padding: '0 20px',
         }}
       >
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Aurora Motors</h1>
+        <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Kybrak Motors</h1>
         <p style={{ fontSize: '1.3rem', maxWidth: 600, lineHeight: 1.5 }}>
           Инновации, элегантность и мощь — воплощённые в каждой детали.
         </p>

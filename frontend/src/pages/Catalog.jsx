@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
+import { Helmet } from "react-helmet-async";
+
+<Helmet>
+  <title>Kybrak Motors | Каталог</title>
+</Helmet>
+
 
 export default function Catalog() {
   const [cars, setCars] = useState([]);

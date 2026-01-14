@@ -13,7 +13,7 @@ export default function Footer() {
       }}
     >
       <p style={{ marginBottom: "15px" }}>
-        © 2025 Aurora Motors. Все права защищены.
+        © 2025 Kybrak Motors. Все права защищены.
       </p>
       <div style={{ display: "flex", justifyContent: "center", gap: "20px"}}>
         <Link to="/privacy" style={footerLink}>Политика конфиденциальности</Link>
