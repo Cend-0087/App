@@ -2,6 +2,7 @@ import React from "react"
 import { Outlet } from "react-router-dom"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
+import TelegramIcon from "../components/TelegramIcon"
 
 export default function Layout() {
   return (
@@ -14,6 +15,9 @@ export default function Layout() {
       </main>
 
       <Footer />
+
+      {/* Иконка Telegram */}
+      <TelegramIcon />
     </div>
   )
 }
