@@ -10,6 +10,10 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
     "react-helmet-async": "^2.0.5"
+  },
+  "devDependencies": {
+    "baseline-browser-mapping": "^2.10.0"
   }
 }

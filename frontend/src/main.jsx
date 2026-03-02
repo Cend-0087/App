@@ -1,7 +1,8 @@
+// main.jsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import '/index.css';
+import '/index.css';  // Оставляем как было - со слешем!
 import Layout from "./layouts/Layout";
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
@@ -13,17 +14,9 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import TestSupabase from './pages/TestSupabase';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { HelmetProvider } from "react-helmet-async";
-
-
-// title для страниц
-createRoot(document.getElementById("root")).render(
-  <HelmetProvider>
-    <App />
-  </HelmetProvider>
-);
-
 
 // 🔹 Компонент для защиты маршрутов
 function ProtectedRoute({ children }) {
@@ -32,7 +25,7 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// 🔹 Компонент для редиректа авторизованного пользователя с /login и /register
+// 🔹 Компонент для редиректа авторизованного пользователя
 function GuestRoute({ children }) {
   const { user } = useAuth();
   if (user) return <Navigate to="/profile" replace />;
@@ -41,52 +34,54 @@ function GuestRoute({ children }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Все страницы внутри Layout */}
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="catalog" element={<Catalog />} />
-          <Route path="/cars/:id" element={<Car />} />
-          <Route 
-            path="/login" 
-            element={
-              <GuestRoute>
-                <Login />
-              </GuestRoute>
-            } 
-          />
-          <Route 
-            path="/register" 
-            element={
-              <GuestRoute>
-                <Register />
-              </GuestRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <HelmetProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="catalog" element={<Catalog />} />
+              <Route path="cars/:id" element={<Car />} />
+              <Route 
+                path="login" 
+                element={
+                  <GuestRoute>
+                    <Login />
+                  </GuestRoute>
+                } 
+              />
+              <Route 
+                path="register" 
+                element={
+                  <GuestRoute>
+                    <Register />
+                  </GuestRoute>
+                } 
+              />
+              <Route 
+                path="profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="about" element={<About />} />
+              <Route path="test-supabase" element={<TestSupabase />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 
-// 🔹 Рендерим с AuthProvider
+// ОДИН вызов createRoot
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <App />
   </React.StrictMode>
 );
