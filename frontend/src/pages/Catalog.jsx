@@ -38,15 +38,9 @@ export default function Catalog() {
   // Фильтрация и сортировка
   const filteredCars = cars
     .filter(car => {
-      // Поиск по названию
       const matchesSearch = car.model.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Фильтр по цене
       const matchesPrice = car.price >= priceRange.min && car.price <= priceRange.max;
-
-      // Фильтр по году
       const matchesYear = selectedYear === 'all' || car.year === parseInt(selectedYear);
-
       return matchesSearch && matchesPrice && matchesYear;
     })
     .sort((a, b) => {
@@ -197,6 +191,7 @@ export default function Catalog() {
   );
 }
 
+// ✅ ИСПРАВЛЕНО: все ключи уникальны
 const styles = {
   container: {
     maxWidth: '1200px',
@@ -263,6 +258,11 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '25px',
   },
+  cardWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+  },
   card: {
     border: '1px solid #eee',
     padding: '15px',
@@ -273,17 +273,22 @@ const styles = {
     flexDirection: 'column',
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
     cursor: 'pointer',
+    width: '100%',
+    maxWidth: '350px',
+    margin: '0 auto',
   },
-  cardHover: {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+  imageContainer: {
+    width: '100%',
+    height: '180px',
+    overflow: 'hidden',
+    borderRadius: '8px',
+    marginBottom: '15px',
   },
   image: {
     width: '100%',
-    height: '180px',
+    height: '100%',
     objectFit: 'cover',
-    borderRadius: '8px',
-    marginBottom: '15px',
+    transition: 'transform 0.3s ease',
   },
   cardTitle: {
     margin: '0 0 10px 0',
@@ -344,42 +349,6 @@ const styles = {
     fontWeight: 'bold',
     cursor: 'pointer',
   },
-    cardWrapper: {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  
-  card: {
-    border: '1px solid #eee',
-    padding: '15px',
-    borderRadius: '12px',
-    backgroundColor: '#fff',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    cursor: 'pointer',
-    width: '100%',
-    maxWidth: '350px', // Ограничиваем максимальную ширину карточки
-    margin: '0 auto',   // Центрируем если одна карточка
-  },
-  
-  imageContainer: {
-    width: '100%',
-    height: '180px',    // Фиксированная высота контейнера
-    overflow: 'hidden', // Скрываем выступающие части
-    borderRadius: '8px',
-    marginBottom: '15px',
-  },
-  
-  image: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover', // Равномерно заполняет контейнер
-    transition: 'transform 0.3s ease',
-  },
-  
   cardHover: {
     transform: 'translateY(-5px)',
     boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
