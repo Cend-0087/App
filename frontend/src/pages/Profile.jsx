@@ -3,20 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth(); // Добавили loading
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
 
   // Перенаправление если пользователь не залогинен
   useEffect(() => {
-    if (!user) navigate("/login");
-  }, [user, navigate]);
+    if (!loading && !user) navigate("/login");
+  }, [user, loading, navigate]);
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
+  if (loading) return <div>Загрузка...</div>; // Добавили проверку loading
   if (!user) return null;
 
   return (

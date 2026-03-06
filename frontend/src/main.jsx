@@ -1,8 +1,14 @@
-// main.jsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import '/index.css';  // Оставляем как было - со слешем!
+import { 
+  BrowserRouter, 
+  Routes, 
+  Route, 
+  Navigate 
+} from 'react-router-dom';
+
+import '/index.css';
+
 import Layout from "./layouts/Layout";
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
@@ -14,21 +20,24 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
-import TestSupabase from './pages/TestSupabase';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { HelmetProvider } from "react-helmet-async";
 
-// 🔹 Компонент для защиты маршрутов
+// Защищённые и гостевые маршруты
 function ProtectedRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return <div className="loading">Загрузка...</div>;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
-// 🔹 Компонент для редиректа авторизованного пользователя
 function GuestRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) return <div className="loading">Загрузка...</div>;
   if (user) return <Navigate to="/profile" replace />;
+  
   return children;
 }
 
@@ -42,6 +51,7 @@ function App() {
               <Route index element={<Home />} />
               <Route path="catalog" element={<Catalog />} />
               <Route path="cars/:id" element={<Car />} />
+              
               <Route 
                 path="login" 
                 element={
@@ -50,6 +60,7 @@ function App() {
                   </GuestRoute>
                 } 
               />
+              
               <Route 
                 path="register" 
                 element={
@@ -58,6 +69,7 @@ function App() {
                   </GuestRoute>
                 } 
               />
+              
               <Route 
                 path="profile" 
                 element={
@@ -66,11 +78,11 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              
+              <Route path="about" element={<About />} />
+              <Route path="contact" element={<Contact />} />
               <Route path="privacy" element={<Privacy />} />
               <Route path="terms" element={<Terms />} />
-              <Route path="contact" element={<Contact />} />
-              <Route path="about" element={<About />} />
-              <Route path="test-supabase" element={<TestSupabase />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -79,7 +91,6 @@ function App() {
   );
 }
 
-// ОДИН вызов createRoot
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
