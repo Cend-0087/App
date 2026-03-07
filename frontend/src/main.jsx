@@ -15,6 +15,8 @@ import Catalog from './pages/Catalog';
 import Car from './pages/Car';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -70,6 +72,9 @@ function App() {
                 } 
               />
               
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
+              
               <Route 
                 path="profile" 
                 element={
@@ -83,6 +88,7 @@ function App() {
               <Route path="contact" element={<Contact />} />
               <Route path="privacy" element={<Privacy />} />
               <Route path="terms" element={<Terms />} />
+
             </Route>
           </Routes>
         </BrowserRouter>
