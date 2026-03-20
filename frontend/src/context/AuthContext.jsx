@@ -94,7 +94,6 @@ export function AuthProvider({ children }) {
 
   const signUp = async (name, email, password) => {
     try {
-      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -115,8 +114,6 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
     }
   };
 

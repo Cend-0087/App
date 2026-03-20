@@ -8,7 +8,9 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -27,14 +29,10 @@ export default function Register() {
       return;
     }
 
-    setLoading(true);
-
     const { success, error } = await signUp(name.trim(), email.trim(), password);
 
-    setLoading(false);
-
     if (success) {
-      navigate('/login');
+      setMessage("На вашу почту отправлено письмо. Перейдите по ссылке из письма, чтобы подтвердить почту и завершить регистрацию.")
     } else {
       setError(error || 'Ошибка регистрации');
     }
@@ -46,6 +44,8 @@ export default function Register() {
         <div className="auth-header">
           <h1>Создать аккаунт</h1>
         </div>
+
+        {message && <div className="auth-complete">{message}</div>}
 
         {error && <div className="auth-error">{error}</div>}
 
@@ -126,6 +126,7 @@ export default function Register() {
         .auth-header { text-align: center; margin-bottom: 28px; }
         .auth-header h1 { font-size: 1.9rem; font-weight: 700; color: #0f1419; margin: 0; }
         .auth-error { background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 10px; margin-bottom: 24px; font-size: 0.94rem; text-align: center; border: 1px solid #ffcdd2; }
+        .auth-complete { background: #ebffec; color: #28c63a; padding: 12px 16px; border-radius: 10px; margin-bottom: 24px; font-size: 0.94rem; text-align: center; border: 1px solid #d9ffcd; }
         .auth-form { display: flex; flex-direction: column; gap: 20px; }
         .form-field { display: flex; flex-direction: column; gap: 8px; }
         .form-field label { font-size: 0.94rem; font-weight: 600; color: #444; }
