@@ -14,30 +14,31 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('name, role')
+        .select('name, role, phone, avatar')
         .eq('id', userId)
         .single();
 
       if (error) throw error;
 
-      setUser((currentUser) => ({
-        ...currentUser,
-        name: data?.name || currentUser?.name || null,
+      setUser((current) => ({
+        ...current,
+        name: data?.name || current?.name || null,
         role: data?.role || 'user',
+        phone: data?.phone || null,
+        avatar: data?.avatar || null,
       }));
     } catch (err) {
       console.error('Ошибка загрузки профиля:', err.message);
-      // Не сбрасываем user полностью — оставляем хотя бы auth-данные
-      setUser((currentUser) => ({
-        ...currentUser,
-        name: null,
+      setUser((current) => ({
+        ...current,
         role: 'user',
+        phone: null,
+        avatar: null,
       }));
     }
   };
 
   useEffect(() => {
-    // Проверяем текущую сессию при монтировании
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
@@ -49,10 +50,7 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    // Слушатель изменений аутентификации
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event, session?.user?.id);
-
       setSession(session);
 
       if (session?.user) {
@@ -61,18 +59,14 @@ export function AuthProvider({ children }) {
       } else {
         setUser(null);
       }
-
       setLoading(false);
     });
 
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    return () => listener?.subscription.unsubscribe();
   }, []);
 
   const signIn = async (email, password) => {
     try {
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -82,13 +76,11 @@ export function AuthProvider({ children }) {
 
       setSession(data.session);
       setUser(data.user);
-      await loadProfile(data.user.id); // подгружаем профиль сразу после входа
+      await loadProfile(data.user.id);
 
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
-    } finally {
-
     }
   };
 
@@ -104,13 +96,31 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
 
-      // Если регистрация прошла и пользователь сразу авторизован (без подтверждения почты)
       if (data.user && data.session) {
         setSession(data.session);
         setUser(data.user);
         await loadProfile(data.user.id);
       }
 
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateProfile = async (updates) => {
+    if (!user) return { success: false, error: 'Пользователь не авторизован' };
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Обновляем локальное состояние
+      setUser((current) => ({ ...current, ...updates }));
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -125,7 +135,7 @@ export function AuthProvider({ children }) {
 
       setSession(null);
       setUser(null);
-      window.location.href = '/login';
+      window.location.href = '/';
     } catch (error) {
       console.error('Ошибка выхода:', error.message);
     } finally {
@@ -140,6 +150,10 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     logout,
+    updateProfile,
+    isAdmin: user?.role === 'admin',
+    isManager: user?.role === 'manager' || user?.role === 'admin',
+    isEmployee: user?.role === 'employee' || user?.role === 'manager' || user?.role === 'admin',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

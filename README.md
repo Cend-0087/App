@@ -1,22 +1,15 @@
-Aurora — demo full-stack project (starter)
+Work in progress.
+Kybrak Motors — Technical Stack 
+https://app-z8kj.onrender.com
 
-Structure:
-  backend/  - minimal Express backend (LowDB JSON storage)
-  frontend/ - Vite + React frontend (simple pages)
+- Frontend: React 18 (Vite), React Router v6, React Helmet Async
+- Styling: Inline styles + CSS-in-JS (styled-jsx approach)
+- Backend & Database: Supabase (PostgreSQL + OrioleDB)
+- Auth: Supabase Auth + custom AuthContext with role-based access
+- Roles: user, employee, manager, admin (RLS + frontend guards)
+- Features: Catalog with filters & sorting, Car detail page, User
+- Profile with editing, Protected & role-based routes
+- Deployment: Render
+- Additional: Row Level Security (RLS), real-time ready - architecture (Supabase Realtime planned)
 
-Quick start (locally):
-1) Backend
-   cd backend
-   npm install
-   npm run dev   # requires nodemon OR npm start to run normally
-
-2) Frontend
-   cd frontend
-   npm install
-   npm run dev
-
-Backend runs by default on port 4000, frontend on 5173 (vite).
-
-Demo users seeded:
-  admin@aurora.test / password123
-  user@aurora.test  / password123
+Type: Full-stack SPA (Frontend-heavy with Supabase BaaS)
