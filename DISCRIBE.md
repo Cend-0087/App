@@ -1,11 +1,12 @@
-Название: Kybrak Motors
-e-comerce
-Фреймворк: React
+Kybrak Motors — Technical Stack
 
-СУБД: Supabse
-БД: решил попробовать эксперементальную PostgreSQL с OrioleDB.
+Frontend: React 18 (Vite), React Router v6, React Helmet Async
+Styling: Inline styles + CSS-in-JS (styled-jsx approach)
+Backend & Database: Supabase (PostgreSQL + OrioleDB)
+Auth: Supabase Auth + custom AuthContext with role-based access
+Roles: user, employee, manager, admin (RLS + frontend guards)
+Features: Catalog with filters & sorting, Car detail page, User Profile with editing, Protected & role-based routes
+Deployment: Render
+Additional: Row Level Security (RLS), real-time ready architecture (Supabase Realtime planned)
 
-Присутствует интеграция карт (Яндекс карты).
-
-Дополнение
-Тг-бот для связи. Позволяет пользователю заполнить и отправить сотруднику форму.
+Type: Full-stack SPA (Frontend-heavy with Supabase BaaS)
