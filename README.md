@@ -1,8 +1,4 @@
-Aurora — demo full-stack project (starter)
-
-Structure:
-  backend/  - minimal Express backend (LowDB JSON storage)
-  frontend/ - Vite + React frontend (simple pages)
+Aurora — demo full-stack project 
 
 Quick start (locally):
 1) Backend
@@ -16,7 +12,3 @@ Quick start (locally):
    npm run dev
 
 Backend runs by default on port 4000, frontend on 5173 (vite).
-
-Demo users seeded:
-  admin@aurora.test / password123
-  user@aurora.test  / password123
