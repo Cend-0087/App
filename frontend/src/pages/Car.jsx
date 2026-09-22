@@ -12,9 +12,30 @@ export default function Car() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Модальное окно и форма
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    phone: '',
+    preferred_date: '',
+    contact_method: 'phone',
+    comment: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     fetchCar();
   }, [id]);
+
+  // Предзаполнение телефона из профиля
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        phone: user.phone || ''
+      }));
+    }
+  }, [user]);
 
   async function fetchCar() {
     setLoading(true);
@@ -37,9 +58,76 @@ export default function Car() {
   const handleBuyClick = () => {
     if (!user) {
       navigate('/login');
-    } else {
-      // TODO: создать страницу заказа
-      alert('Функция покупки будет доступна soon!');
+      return;
+    }
+    setFormMessage({ type: '', text: '' });
+    setIsModalOpen(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitOrder = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFormMessage({ type: '', text: '' });
+
+    if (!formData.phone.trim()) {
+      setFormMessage({ type: 'error', text: 'Укажите номер телефона' });
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          car_id: car.id,
+          total_price: car.price,
+          phone: formData.phone.trim(),
+          preferred_date: formData.preferred_date || null,
+          contact_method: formData.contact_method,
+          comment: formData.comment.trim() || null,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      setFormMessage({ 
+        type: 'success', 
+        text: 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.' 
+      });
+
+      // Закрываем модалку через 2.5 секунды
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setFormMessage({ type: '', text: '' });
+        setFormData(prev => ({
+          ...prev,
+          preferred_date: '',
+          contact_method: 'phone',
+          comment: ''
+        }));
+      }, 2500);
+
+    } catch (error) {
+      console.error('Ошибка создания заказа:', error.message);
+      setFormMessage({ 
+        type: 'error', 
+        text: error.message || 'Не удалось отправить заявку. Попробуйте ещё раз.' 
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
+    if (!submitting) {
+      setIsModalOpen(false);
+      setFormMessage({ type: '', text: '' });
     }
   };
 
@@ -147,10 +235,116 @@ export default function Car() {
           </div>
 
           <button onClick={handleBuyClick} style={styles.buyButton} className="buyButton">
-            {user ? 'Купить автомобиль' : 'Войдите для покупки'}
+            {user ? 'Оставить заявку' : 'Войдите для покупки'}
           </button>
         </div>
       </div>
+
+      {/* ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ ===== */}
+      {isModalOpen && (
+        <div style={styles.modalOverlay} onClick={closeModal}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h2 style={styles.modalTitle}>Заявка на автомобиль</h2>
+              <button style={styles.closeButton} onClick={closeModal} disabled={submitting}>
+                ×
+              </button>
+            </div>
+
+            <div style={styles.modalCarInfo}>
+              <strong>{car.model}</strong>
+              <span>€{car.price.toLocaleString()}</span>
+            </div>
+
+            {formMessage.text && (
+              <div style={{
+                ...styles.formMessage,
+                ...(formMessage.type === 'success' ? styles.formMessageSuccess : styles.formMessageError)
+              }}>
+                {formMessage.text}
+              </div>
+            )}
+
+            {formMessage.type !== 'success' && (
+              <form onSubmit={handleSubmitOrder} style={styles.form}>
+                <div style={styles.formField}>
+                  <label style={styles.label}>Ваше имя</label>
+                  <input
+                    type="text"
+                    value={user?.name || ''}
+                    disabled
+                    style={{ ...styles.input, ...styles.inputDisabled }}
+                  />
+                </div>
+
+                <div style={styles.formField}>
+                  <label style={styles.label}>Телефон *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+7 (___) ___-__-__"
+                    required
+                    style={styles.input}
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div style={styles.formField}>
+                  <label style={styles.label}>Желаемая дата осмотра</label>
+                  <input
+                    type="date"
+                    name="preferred_date"
+                    value={formData.preferred_date}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    disabled={submitting}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div style={styles.formField}>
+                  <label style={styles.label}>Предпочтительный способ связи</label>
+                  <select
+                    name="contact_method"
+                    value={formData.contact_method}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    disabled={submitting}
+                  >
+                    <option value="phone">Звонок</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="telegram">Telegram</option>
+                    <option value="email">Email</option>
+                  </select>
+                </div>
+
+                <div style={styles.formField}>
+                  <label style={styles.label}>Комментарий</label>
+                  <textarea
+                    name="comment"
+                    value={formData.comment}
+                    onChange={handleInputChange}
+                    placeholder="Пожелания, вопросы, удобное время для звонка..."
+                    rows={3}
+                    style={{ ...styles.input, ...styles.textarea }}
+                    disabled={submitting}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  style={styles.submitButton}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Отправляем...' : 'Отправить заявку'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       <style>{`
         .spinner {
@@ -396,9 +590,6 @@ const styles = {
     transition: 'color 0.3s ease',
     fontSize: 'clamp(0.9rem, 2vw, 1rem)',
     cursor: 'pointer',
-    ':hover': {
-      color: '#f5c518',
-    },
   },
   content: {
     display: 'grid',
@@ -526,18 +717,6 @@ const styles = {
     marginTop: '10px',
     width: 'fit-content',
     minWidth: '200px',
-    ':hover': {
-      backgroundColor: '#e6b800',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 15px rgba(245, 197, 24, 0.3)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      opacity: 0.6,
-      cursor: 'not-allowed',
-    },
   },
   loading: {
     textAlign: 'center',
@@ -558,15 +737,124 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    '& h2': {
-      marginBottom: '20px',
-      color: '#111',
-      fontSize: 'clamp(1.3rem, 5vw, 2rem)',
-    },
+  },
+
+  // ===== Стили модального окна =====
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px',
+  },
+  modal: {
+    backgroundColor: '#fff',
+    borderRadius: '16px',
+    width: '100%',
+    maxWidth: '480px',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    padding: '28px',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+  },
+  modalHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '18px',
+  },
+  modalTitle: {
+    margin: 0,
+    fontSize: '1.45rem',
+    color: '#111',
+  },
+  closeButton: {
+    background: 'none',
+    border: 'none',
+    fontSize: '1.8rem',
+    cursor: 'pointer',
+    color: '#999',
+    lineHeight: 1,
+    padding: '0 4px',
+  },
+  modalCarInfo: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: '12px 16px',
+    borderRadius: '10px',
+    marginBottom: '20px',
+    fontSize: '1.05rem',
+  },
+  formMessage: {
+    padding: '12px 16px',
+    borderRadius: '10px',
+    marginBottom: '18px',
+    textAlign: 'center',
+    fontSize: '0.95rem',
+  },
+  formMessageSuccess: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    border: '1px solid #c3e6cb',
+  },
+  formMessageError: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    border: '1px solid #f5c6cb',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  formField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  label: {
+    fontSize: '0.92rem',
+    fontWeight: 600,
+    color: '#444',
+  },
+  input: {
+    padding: '12px 14px',
+    border: '1px solid #ddd',
+    borderRadius: '10px',
+    fontSize: '1rem',
+    outline: 'none',
+  },
+  inputDisabled: {
+    backgroundColor: '#f3f4f6',
+    color: '#666',
+  },
+  textarea: {
+    resize: 'vertical',
+    minHeight: '80px',
+  },
+  submitButton: {
+    marginTop: '8px',
+    padding: '14px',
+    backgroundColor: '#f5c518',
+    color: '#111',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '1.05rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
   },
 };
 
-// Добавляем стили для таблицы через объект (для :hover эффектов)
+// Добавляем стили для таблицы через объект
 Object.assign(styles.specsTable, {
   '& td': {
     padding: '8px 0',
@@ -583,16 +871,5 @@ Object.assign(styles.specsTable, {
   },
   '& tr:last-child td': {
     borderBottom: 'none',
-  },
-});
-
-// Добавляем стили для hover на кнопку
-Object.assign(styles.buyButton, {
-  '@media (hover: hover)': {
-    ':hover': {
-      backgroundColor: '#e6b800',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 15px rgba(245, 197, 24, 0.3)',
-    },
   },
 });
