@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { 
-  BrowserRouter, 
-  Routes, 
-  Route, 
-  Navigate 
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
 } from 'react-router-dom';
 
 import '/index.css';
@@ -22,6 +22,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Admin from './pages/Admin'
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { HelmetProvider } from "react-helmet-async";
@@ -83,41 +84,50 @@ function App() {
               <Route index element={<Home />} />
               <Route path="catalog" element={<Catalog />} />
               <Route path="cars/:id" element={<Car />} />
-              
+
+              <Route
+                path="admin"
+                element={
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
+                }
+              />
+
               {/* Гостевые страницы */}
-              <Route 
-                path="login" 
+              <Route
+                path="login"
                 element={
                   <GuestRoute>
                     <Login />
                   </GuestRoute>
-                } 
+                }
               />
-              <Route 
-                path="register" 
+              <Route
+                path="register"
                 element={
                   <GuestRoute>
                     <Register />
                   </GuestRoute>
-                } 
+                }
               />
-              
+
               <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="reset-password" element={<ResetPassword />} />
 
               {/* Защищённые страницы */}
-              <Route 
-                path="profile" 
+              <Route
+                path="profile"
                 element={
                   <ProtectedRoute>
                     <Profile />
                   </ProtectedRoute>
-                } 
+                }
               />
 
               {/* Административные страницы (пока только заглушка) */}
-              <Route 
-                path="admin" 
+              <Route
+                path="admin"
                 element={
                   <AdminRoute>
                     <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -126,7 +136,7 @@ function App() {
                       <p>Пока доступ только у пользователей с ролью <strong>admin</strong>.</p>
                     </div>
                   </AdminRoute>
-                } 
+                }
               />
 
               {/* Дополнительные страницы */}

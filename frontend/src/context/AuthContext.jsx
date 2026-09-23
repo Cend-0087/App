@@ -8,8 +8,12 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProfile = async (userId) => {
-    if (!userId) return;
+  const loadProfile = async (userId, baseUser) => {
+    if (!userId) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -20,49 +24,59 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
 
-      setUser((current) => ({
-        ...current,
-        name: data?.name || current?.name || null,
+      setUser({
+        ...baseUser,
+        name: data?.name || baseUser?.user_metadata?.name || null,
         role: data?.role || 'user',
         phone: data?.phone || null,
         avatar: data?.avatar || null,
-      }));
+      });
     } catch (err) {
       console.error('Ошибка загрузки профиля:', err.message);
-      setUser((current) => ({
-        ...current,
+      setUser({
+        ...baseUser,
+        name: baseUser?.user_metadata?.name || null,
         role: 'user',
         phone: null,
         avatar: null,
-      }));
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Получаем текущую сессию
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+
       if (session?.user) {
-        setUser(session.user);
-        loadProfile(session.user.id);
+        // Пока профиль грузится — loading остаётся true
+        setUser(session.user); // временно
+        loadProfile(session.user.id, session.user);
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
+    // Слушатель изменений авторизации
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
 
       if (session?.user) {
+        setLoading(true); // снова ждём профиль
         setUser(session.user);
-        loadProfile(session.user.id);
+        loadProfile(session.user.id, session.user);
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => listener?.subscription.unsubscribe();
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email, password) => {
@@ -75,8 +89,8 @@ export function AuthProvider({ children }) {
       if (error) throw error;
 
       setSession(data.session);
-      setUser(data.user);
-      await loadProfile(data.user.id);
+      setLoading(true);
+      await loadProfile(data.user.id, data.user);
 
       return { success: true };
     } catch (error) {
@@ -98,8 +112,8 @@ export function AuthProvider({ children }) {
 
       if (data.user && data.session) {
         setSession(data.session);
-        setUser(data.user);
-        await loadProfile(data.user.id);
+        setLoading(true);
+        await loadProfile(data.user.id, data.user);
       }
 
       return { success: true };
@@ -119,7 +133,6 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
 
-      // Обновляем локальное состояние
       setUser((current) => ({ ...current, ...updates }));
       return { success: true };
     } catch (error) {

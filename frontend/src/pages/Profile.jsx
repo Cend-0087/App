@@ -16,6 +16,11 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Заявки пользователя
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState(null);
+
   // Перенаправление если не авторизован
   useEffect(() => {
     if (!loading && !user) {
@@ -31,8 +36,63 @@ export default function Profile() {
         phone: user.phone || '',
         avatar: user.avatar || ''
       });
+      fetchMyOrders();
     }
   }, [user]);
+
+  async function fetchMyOrders() {
+    if (!user) return;
+    setOrdersLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          cars (
+            model,
+            price,
+            image
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (err) {
+      console.error('Ошибка загрузки заявок:', err.message);
+      setOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  }
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Вы уверены, что хотите отменить эту заявку?')) return;
+
+    setCancellingId(orderId);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Обновляем список локально
+      setOrders(prev =>
+        prev.map(order =>
+          order.id === orderId ? { ...order, status: 'cancelled' } : order
+        )
+      );
+    } catch (err) {
+      console.error('Ошибка отмены заявки:', err.message);
+      alert('Не удалось отменить заявку: ' + err.message);
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +122,20 @@ export default function Profile() {
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const statusLabels = {
+    pending: 'Новая',
+    confirmed: 'Подтверждена',
+    completed: 'Завершена',
+    cancelled: 'Отменена'
+  };
+
+  const statusColors = {
+    pending: '#f59e0b',
+    confirmed: '#3b82f6',
+    completed: '#10b981',
+    cancelled: '#ef4444'
   };
 
   if (loading) return <div className="loading">Загрузка профиля...</div>;
@@ -123,16 +197,8 @@ export default function Profile() {
                    isEmployee ? 'Сотрудник' : 'Пользователь'}
                 </span>
               </div>
-
-              {user.id && (
-                <div className="info-group">
-                  <span className="info-label">ID:</span>
-                  <span className="info-value user-id">{user.id}</span>
-                </div>
-              )}
             </>
           ) : (
-            /* Форма редактирования */
             <div className="edit-form">
               <div className="form-field">
                 <label>Имя</label>
@@ -206,7 +272,96 @@ export default function Profile() {
           )}
         </div>
 
-        {/* Дополнительная информация для администраторов */}
+        {/* ===== МОИ ЗАЯВКИ ===== */}
+        <div className="orders-section">
+          <h2 className="orders-title">Мои заявки</h2>
+
+          {ordersLoading ? (
+            <div className="orders-loading">Загрузка заявок...</div>
+          ) : orders.length === 0 ? (
+            <div className="orders-empty">
+              У вас пока нет заявок.<br />
+              Перейдите в <a href="/catalog">каталог</a>, чтобы оставить заявку на автомобиль.
+            </div>
+          ) : (
+            <div className="orders-list">
+              {orders.map(order => (
+                <div key={order.id} className="order-card">
+                  <div className="order-header">
+                    <div className="order-car">
+                      {order.cars?.image && (
+                        <img 
+                          src={order.cars.image} 
+                          alt={order.cars.model} 
+                          className="order-car-img" 
+                        />
+                      )}
+                      <div>
+                        <div className="order-model">{order.cars?.model || 'Автомобиль'}</div>
+                        <div className="order-price">
+                          €{Number(order.total_price).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <span 
+                      className="order-status"
+                      style={{ backgroundColor: statusColors[order.status] || '#999' }}
+                    >
+                      {statusLabels[order.status] || order.status}
+                    </span>
+                  </div>
+
+                  <div className="order-details">
+                    <div className="order-detail-row">
+                      <span>Дата заявки:</span>
+                      <span>{new Date(order.created_at).toLocaleString('ru-RU')}</span>
+                    </div>
+                    {order.preferred_date && (
+                      <div className="order-detail-row">
+                        <span>Желаемая дата:</span>
+                        <span>{new Date(order.preferred_date).toLocaleDateString('ru-RU')}</span>
+                      </div>
+                    )}
+                    {order.contact_method && (
+                      <div className="order-detail-row">
+                        <span>Способ связи:</span>
+                        <span>
+                          {{
+                            phone: 'Звонок',
+                            whatsapp: 'WhatsApp',
+                            telegram: 'Telegram',
+                            email: 'Email'
+                          }[order.contact_method] || order.contact_method}
+                        </span>
+                      </div>
+                    )}
+                    {order.comment && (
+                      <div className="order-detail-row">
+                        <span>Комментарий:</span>
+                        <span className="order-comment">{order.comment}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Кнопка отмены — только для статуса "Новая" */}
+                  {order.status === 'pending' && (
+                    <div className="order-actions">
+                      <button
+                        className="cancel-order-btn"
+                        onClick={() => handleCancelOrder(order.id)}
+                        disabled={cancellingId === order.id}
+                      >
+                        {cancellingId === order.id ? 'Отменяем...' : 'Отменить заявку'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Админ-ссылка */}
         {(isAdmin || isManager) && (
           <div className="admin-info">
             <p>У вас есть доступ к административной панели.</p>
@@ -226,7 +381,7 @@ export default function Profile() {
         }
 
         .profile-container {
-          max-width: 520px;
+          max-width: 560px;
           width: 100%;
           background: white;
           border-radius: 24px;
@@ -256,6 +411,7 @@ export default function Profile() {
           font-weight: bold;
           box-shadow: 0 4px 15px rgba(245, 197, 24, 0.3);
           overflow: hidden;
+          flex-shrink: 0;
         }
 
         .avatar-img {
@@ -337,11 +493,6 @@ export default function Profile() {
           font-weight: bold;
         }
 
-        .user-id {
-          font-family: monospace;
-          font-size: 0.9rem;
-        }
-
         .edit-form .form-field {
           margin-bottom: 18px;
         }
@@ -359,12 +510,13 @@ export default function Profile() {
           border: 1px solid #ddd;
           border-radius: 10px;
           font-size: 1rem;
+          box-sizing: border-box;
         }
 
         .profile-actions {
           display: flex;
           gap: 12px;
-          margin-bottom: 20px;
+          margin-bottom: 30px;
         }
 
         .action-button {
@@ -388,12 +540,148 @@ export default function Profile() {
           color: white;
         }
 
+        /* ===== Заявки ===== */
+        .orders-section {
+          margin-top: 10px;
+          padding-top: 25px;
+          border-top: 2px solid #f0f0f0;
+        }
+
+        .orders-title {
+          font-size: 1.35rem;
+          margin: 0 0 18px 0;
+          color: #111;
+        }
+
+        .orders-loading,
+        .orders-empty {
+          text-align: center;
+          padding: 30px 15px;
+          color: #666;
+          background: #f8f9fa;
+          border-radius: 12px;
+          font-size: 0.95rem;
+          line-height: 1.5;
+        }
+
+        .orders-empty a {
+          color: #f5c518;
+          font-weight: 600;
+        }
+
+        .orders-list {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .order-card {
+          background: #f8f9fa;
+          border-radius: 14px;
+          padding: 16px;
+          border: 1px solid #eee;
+        }
+
+        .order-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .order-car {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .order-car-img {
+          width: 60px;
+          height: 45px;
+          object-fit: cover;
+          border-radius: 8px;
+        }
+
+        .order-model {
+          font-weight: 600;
+          font-size: 1.05rem;
+          color: #111;
+        }
+
+        .order-price {
+          color: #f5c518;
+          font-weight: 600;
+          font-size: 0.95rem;
+          margin-top: 2px;
+        }
+
+        .order-status {
+          display: inline-block;
+          padding: 5px 12px;
+          border-radius: 20px;
+          color: white;
+          font-size: 0.8rem;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .order-details {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          font-size: 0.9rem;
+        }
+
+        .order-detail-row {
+          display: flex;
+          gap: 8px;
+        }
+
+        .order-detail-row span:first-child {
+          color: #666;
+          min-width: 120px;
+        }
+
+        .order-comment {
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .order-actions {
+          margin-top: 14px;
+          padding-top: 12px;
+          border-top: 1px solid #eee;
+        }
+
+        .cancel-order-btn {
+          padding: 8px 16px;
+          background: #fee2e2;
+          color: #b91c1c;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .cancel-order-btn:hover:not(:disabled) {
+          background: #fecaca;
+        }
+
+        .cancel-order-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
         .admin-info {
           text-align: center;
           padding: 15px;
           background: #f0f8ff;
           border-radius: 12px;
           border: 1px solid #b3d9ff;
+          margin-top: 25px;
         }
 
         .admin-link {
@@ -411,6 +699,9 @@ export default function Profile() {
           .profile-container { padding: 20px; }
           .profile-header { flex-direction: column; text-align: center; gap: 12px; }
           .profile-actions { flex-direction: column; }
+          .order-header { flex-direction: column; align-items: flex-start; }
+          .order-detail-row { flex-direction: column; gap: 2px; }
+          .order-detail-row span:first-child { min-width: auto; }
         }
       `}</style>
     </div>

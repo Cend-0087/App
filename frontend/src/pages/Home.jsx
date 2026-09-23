@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
@@ -28,6 +28,88 @@ export default function Home() {
       year: 2023,
     },
   ];
+
+  // Точки филиалов
+  const branches = [
+    {
+      id: 1,
+      city: 'Москва',
+      title: 'Центральный офис',
+      address: 'ул. Тверская, 12',
+      coords: [55.757, 37.615],
+    },
+    {
+      id: 2,
+      city: 'Москва',
+      title: 'Шоурум Север',
+      address: 'Ленинградский проспект, 80',
+      coords: [55.805, 37.515],
+    },
+    {
+      id: 3,
+      city: 'Москва',
+      title: 'Сервисный центр',
+      address: 'Варшавское шоссе, 125',
+      coords: [55.620, 37.620],
+    },
+    {
+      id: 4,
+      city: 'Санкт-Петербург',
+      title: 'Офис на Невском',
+      address: 'Невский проспект, 28',
+      coords: [59.935, 30.325],
+    },
+    {
+      id: 5,
+      city: 'Санкт-Петербург',
+      title: 'Шоурум Васильевский',
+      address: 'Средний проспект В.О., 36',
+      coords: [59.943, 30.275],
+    },
+  ];
+
+  useEffect(() => {
+    // Загружаем Яндекс.Карты
+    const script = document.createElement('script');
+    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=ВАШ_КЛЮЧ&lang=ru_RU';
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      // eslint-disable-next-line no-undef
+      ymaps.ready(() => {
+        // eslint-disable-next-line no-undef
+        const map = new ymaps.Map('yandex-map', {
+          center: [56.8, 37.5], // примерно между Москвой и Питером
+          zoom: 5,
+          controls: ['zoomControl', 'fullscreenControl'],
+        });
+
+        branches.forEach((branch) => {
+          // eslint-disable-next-line no-undef
+          const placemark = new ymaps.Placemark(
+            branch.coords,
+            {
+              balloonContentHeader: `<strong>${branch.title}</strong>`,
+              balloonContentBody: `${branch.city}<br/>${branch.address}`,
+              hintContent: branch.title,
+            },
+            {
+              preset: 'islands#yellowAutoIcon',
+            }
+          );
+          map.geoObjects.add(placemark);
+        });
+      });
+    };
+
+    return () => {
+      // очистка при размонтировании
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   return (
     <div className="home-page">
@@ -84,6 +166,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== НАШИ ФИЛИАЛЫ ===== */}
+      <section className="branches-section">
+        <div className="container">
+          <h2 className="section-title">Наши филиалы</h2>
+          <p className="branches-subtitle">
+            Офисы и шоурумы Kybrak Motors в Москве и Санкт-Петербурге
+          </p>
+
+          {/* Карта */}
+          <div id="yandex-map" className="yandex-map"></div>
+
+          {/* Список филиалов */}
+          <div className="branches-grid">
+            {branches.map((branch) => (
+              <div key={branch.id} className="branch-card">
+                <div className="branch-city">{branch.city}</div>
+                <div className="branch-title">{branch.title}</div>
+                <div className="branch-address">{branch.address}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <style>{`
         .home-page {
           font-family: sans-serif;
@@ -105,7 +211,7 @@ export default function Home() {
         .hero-overlay {
           width: 100%;
           height: 100%;
-          background: #bfbfbf45; /* Затемнение для лучшей читаемости */
+          background: #bfbfbf45;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -266,6 +372,72 @@ export default function Home() {
           transform: scale(1.05);
         }
 
+        /* ===== Филиалы ===== */
+        .branches-section {
+          padding: clamp(50px, 8vw, 80px) 20px;
+          background-color: #fff;
+        }
+
+        .branches-subtitle {
+          text-align: center;
+          color: #666;
+          margin: -20px auto 30px;
+          max-width: 600px;
+          font-size: 1.05rem;
+        }
+
+        .yandex-map {
+          width: 100%;
+          height: 420px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+          margin-bottom: 35px;
+          border: 1px solid #eee;
+        }
+
+        .branches-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 16px;
+        }
+
+        .branch-card {
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 18px 16px;
+          border: 1px solid #eee;
+          transition: all 0.25s ease;
+        }
+
+        .branch-card:hover {
+          border-color: #f5c518;
+          transform: translateY(-3px);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+        .branch-city {
+          font-size: 0.85rem;
+          color: #f5c518;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 6px;
+        }
+
+        .branch-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #111;
+          margin-bottom: 6px;
+        }
+
+        .branch-address {
+          font-size: 0.95rem;
+          color: #555;
+          line-height: 1.4;
+        }
+
         /* Анимации */
         @keyframes fadeInUp {
           from {
@@ -286,6 +458,10 @@ export default function Home() {
 
           .models-grid {
             grid-template-columns: repeat(2, 1fr);
+          }
+
+          .yandex-map {
+            height: 380px;
           }
         }
 
@@ -320,6 +496,14 @@ export default function Home() {
             max-width: 400px;
             margin: 0 auto;
             width: 100%;
+          }
+
+          .yandex-map {
+            height: 320px;
+          }
+
+          .branches-grid {
+            grid-template-columns: 1fr;
           }
         }
 
@@ -356,6 +540,10 @@ export default function Home() {
 
           .model-image {
             height: 150px;
+          }
+
+          .yandex-map {
+            height: 280px;
           }
         }
 
